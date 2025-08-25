@@ -1,0 +1,1875 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pixel Mart - POS & Accounting System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .receipt-print { 
+            font-family: 'Courier New', monospace; 
+            font-size: 12px; 
+            line-height: 1.2;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
+    <!-- Login Screen -->
+    <div id="login-screen" class="min-h-screen flex items-center justify-center">
+        <div class="bg-white rounded-lg shadow-xl p-8 max-w-md w-full mx-4">
+            <div class="text-center mb-8">
+                <h1 class="text-3xl font-bold text-gray-800">🏪 Pixel Mart</h1>
+                <p class="text-gray-600 mt-2">POS & Accounting System</p>
+            </div>
+            
+            <!-- Login Form -->
+            <div id="login-form">
+                <form onsubmit="login(event)" class="space-y-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                        <input type="email" id="login-email" required
+                               class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Password</label>
+                        <input type="password" id="login-password" required
+                               class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    </div>
+                    
+                    <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-lg font-medium transition-colors">
+                        Login
+                    </button>
+                </form>
+                
+                <div id="admin-registration-link" class="mt-6 text-center">
+                    <button onclick="showAdminRegistration()" class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                        First time? Register as Admin
+                    </button>
+                </div>
+            </div>
+
+            <!-- Admin Registration Form -->
+            <div id="admin-registration-form" class="hidden">
+                <div class="text-center mb-6">
+                    <h2 class="text-xl font-semibold text-gray-800">Register as Admin</h2>
+                    <p class="text-gray-600 text-sm mt-1">Set up your Pixel Mart account</p>
+                </div>
+                
+                <form onsubmit="registerAdmin(event)" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
+                        <input type="text" id="admin-reg-name" required
+                               class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
+                        <input type="email" id="admin-reg-email" required
+                               class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Password</label>
+                        <input type="password" id="admin-reg-password" required minlength="6"
+                               class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Confirm Password</label>
+                        <input type="password" id="admin-reg-confirm" required minlength="6"
+                               class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
+                        <input type="tel" id="admin-reg-phone" required
+                               class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Business Email (for notifications)</label>
+                        <input type="email" id="admin-business-email" required
+                               class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                               placeholder="This email will receive admin registration alerts">
+                        <p class="text-xs text-gray-500 mt-1">This email will be used to notify you of new admin registration attempts</p>
+                    </div>
+                    
+                    <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white py-3 px-4 rounded-lg font-medium transition-colors">
+                        Create Admin Account
+                    </button>
+                </form>
+                
+                <div class="mt-4 text-center">
+                    <button onclick="showLogin()" class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                        Already have an account? Login
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Application -->
+    <div id="main-app" class="hidden">
+        <!-- Header -->
+        <div class="bg-white shadow-sm border-b">
+            <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+                <div>
+                    <h1 class="text-2xl font-bold text-gray-800">🏪 Pixel Mart</h1>
+                    <p class="text-sm text-gray-600" id="user-info">Welcome back!</p>
+                </div>
+                <button onclick="logout()" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm">
+                    Logout
+                </button>
+            </div>
+        </div>
+
+        <div class="container mx-auto p-4">
+            <!-- Admin Dashboard -->
+            <div id="admin-dashboard" class="hidden">
+                <!-- Tab Navigation -->
+                <div class="bg-white rounded-lg shadow-lg mb-6">
+                    <div class="flex border-b overflow-x-auto">
+                        <button onclick="switchAdminTab('overview')" id="overview-tab" class="flex-1 py-4 px-6 text-center font-medium bg-blue-500 text-white rounded-tl-lg whitespace-nowrap">
+                            📊 Overview
+                        </button>
+                        <button onclick="switchAdminTab('sales')" id="sales-tab" class="flex-1 py-4 px-6 text-center font-medium text-gray-600 hover:bg-gray-50 whitespace-nowrap">
+                            💰 Sales Analytics
+                        </button>
+                        <button onclick="switchAdminTab('inventory')" id="inventory-tab" class="flex-1 py-4 px-6 text-center font-medium text-gray-600 hover:bg-gray-50 whitespace-nowrap">
+                            📦 Inventory
+                        </button>
+                        <button onclick="switchAdminTab('workers')" id="workers-tab" class="flex-1 py-4 px-6 text-center font-medium text-gray-600 hover:bg-gray-50 whitespace-nowrap">
+                            👥 Workers
+                        </button>
+                        <button onclick="switchAdminTab('payroll')" id="payroll-tab" class="flex-1 py-4 px-6 text-center font-medium text-gray-600 hover:bg-gray-50 whitespace-nowrap">
+                            💳 Payroll
+                        </button>
+                        <button onclick="switchAdminTab('pos')" id="pos-tab" class="flex-1 py-4 px-6 text-center font-medium text-gray-600 hover:bg-gray-50 rounded-tr-lg whitespace-nowrap">
+                            🛒 POS
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Overview Tab -->
+                <div id="overview-content" class="admin-tab-content">
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+                        <div class="bg-white rounded-lg shadow-lg p-6 text-center">
+                            <h3 class="text-lg font-semibold text-gray-700 mb-2">Today's Revenue</h3>
+                            <p class="text-3xl font-bold text-green-600" id="admin-today-sales">KES 0.00</p>
+                        </div>
+                        <div class="bg-white rounded-lg shadow-lg p-6 text-center">
+                            <h3 class="text-lg font-semibold text-gray-700 mb-2">Today's Profit</h3>
+                            <p class="text-3xl font-bold text-blue-600" id="admin-today-profit">KES 0.00</p>
+                        </div>
+                        <div class="bg-white rounded-lg shadow-lg p-6 text-center">
+                            <h3 class="text-lg font-semibold text-gray-700 mb-2">Active Workers</h3>
+                            <p class="text-3xl font-bold text-purple-600" id="active-workers">0</p>
+                        </div>
+                        <div class="bg-white rounded-lg shadow-lg p-6 text-center">
+                            <h3 class="text-lg font-semibold text-gray-700 mb-2">Total Products</h3>
+                            <p class="text-3xl font-bold text-orange-600" id="total-products">0</p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <!-- Top Performers -->
+                        <div class="bg-white rounded-lg shadow-lg p-6">
+                            <h2 class="text-xl font-semibold mb-4">Top Performers Today</h2>
+                            <div id="top-performers" class="space-y-3">
+                                <!-- Will be populated -->
+                            </div>
+                        </div>
+
+                        <!-- Low Stock Alerts -->
+                        <div class="bg-white rounded-lg shadow-lg p-6">
+                            <h2 class="text-xl font-semibold mb-4">Low Stock Alerts</h2>
+                            <div id="low-stock-alerts" class="space-y-3">
+                                <!-- Will be populated -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sales Analytics Tab -->
+                <div id="sales-content" class="admin-tab-content hidden">
+                    <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+                        <h2 class="text-xl font-semibold mb-4">Sales by Worker</h2>
+                        <div class="overflow-x-auto">
+                            <table class="w-full table-auto">
+                                <thead>
+                                    <tr class="bg-gray-50">
+                                        <th class="px-4 py-3 text-left font-medium text-gray-700">Worker</th>
+                                        <th class="px-4 py-3 text-left font-medium text-gray-700">Today's Sales</th>
+                                        <th class="px-4 py-3 text-left font-medium text-gray-700">Today's Profit</th>
+                                        <th class="px-4 py-3 text-left font-medium text-gray-700">Transactions</th>
+                                        <th class="px-4 py-3 text-left font-medium text-gray-700">Avg. Sale</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="worker-sales-table">
+                                    <!-- Will be populated -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-lg shadow-lg p-6">
+                        <h2 class="text-xl font-semibold mb-4">Recent Transactions</h2>
+                        <div class="overflow-x-auto">
+                            <table class="w-full table-auto">
+                                <thead>
+                                    <tr class="bg-gray-50">
+                                        <th class="px-4 py-3 text-left font-medium text-gray-700">Time</th>
+                                        <th class="px-4 py-3 text-left font-medium text-gray-700">Worker</th>
+                                        <th class="px-4 py-3 text-left font-medium text-gray-700">Items</th>
+                                        <th class="px-4 py-3 text-left font-medium text-gray-700">Total</th>
+                                        <th class="px-4 py-3 text-left font-medium text-gray-700">Payment</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="admin-transactions-table">
+                                    <!-- Will be populated -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Workers Management Tab -->
+                <div id="workers-content" class="admin-tab-content hidden">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                        <!-- Register New Worker -->
+                        <div class="bg-white rounded-lg shadow-lg p-6">
+                            <h2 class="text-xl font-semibold mb-4">Register New Worker</h2>
+                            <form onsubmit="registerWorker(event)" class="space-y-4">
+                                <div class="bg-gray-50 p-3 rounded-lg">
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Worker ID</label>
+                                    <input type="text" id="worker-id" readonly
+                                           class="w-full p-2 bg-gray-100 border border-gray-300 rounded text-gray-600 text-sm">
+                                </div>
+                                
+                                <input type="text" id="worker-name" placeholder="Full Name" required
+                                       class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                
+                                <input type="email" id="worker-email" placeholder="Email Address" required
+                                       class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                
+                                <input type="password" id="worker-password" placeholder="Password" required
+                                       class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                
+                                <input type="tel" id="worker-phone" placeholder="Phone Number" required
+                                       class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                
+                                <select id="worker-title" required onchange="updateWorkerID()"
+                                        class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                    <option value="">Select Title</option>
+                                    <option value="manager">Manager (MNG)</option>
+                                    <option value="worker">Worker (WOK)</option>
+                                    <option value="attendant">Attendant (ATT)</option>
+                                </select>
+                                
+                                <input type="number" id="worker-salary" placeholder="Monthly Salary (KES)" required
+                                       class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Profile Picture</label>
+                                    <input type="file" id="worker-picture" accept="image/*"
+                                           class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                    <p class="text-xs text-gray-500 mt-1">Upload a profile picture (optional)</p>
+                                </div>
+                                
+                                <button type="submit" class="w-full bg-blue-500 hover:bg-blue-600 text-white py-3 px-4 rounded-lg font-medium">
+                                    Register Worker
+                                </button>
+                            </form>
+                        </div>
+
+                        <!-- Worker Statistics -->
+                        <div class="bg-white rounded-lg shadow-lg p-6">
+                            <h2 class="text-xl font-semibold mb-4">Worker Statistics</h2>
+                            <div class="space-y-4">
+                                <div class="flex justify-between">
+                                    <span>Total Workers:</span>
+                                    <span class="font-semibold" id="total-workers">0</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span>Active Today:</span>
+                                    <span class="font-semibold text-green-600" id="workers-active-today">0</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span>Total Payroll:</span>
+                                    <span class="font-semibold" id="total-payroll">KES 0.00</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Workers List -->
+                    <div class="bg-white rounded-lg shadow-lg p-6">
+                        <h2 class="text-xl font-semibold mb-4">All Workers</h2>
+                        <div class="overflow-x-auto">
+                            <table class="w-full table-auto">
+                                <thead>
+                                    <tr class="bg-gray-50">
+                                        <th class="px-4 py-3 text-left font-medium text-gray-700">Photo</th>
+                                        <th class="px-4 py-3 text-left font-medium text-gray-700">ID</th>
+                                        <th class="px-4 py-3 text-left font-medium text-gray-700">Name</th>
+                                        <th class="px-4 py-3 text-left font-medium text-gray-700">Title</th>
+                                        <th class="px-4 py-3 text-left font-medium text-gray-700">Email</th>
+                                        <th class="px-4 py-3 text-left font-medium text-gray-700">Phone</th>
+                                        <th class="px-4 py-3 text-left font-medium text-gray-700">Salary</th>
+                                        <th class="px-4 py-3 text-left font-medium text-gray-700">Status</th>
+                                        <th class="px-4 py-3 text-left font-medium text-gray-700">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="workers-table">
+                                    <!-- Will be populated -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Payroll Tab -->
+                <div id="payroll-content" class="admin-tab-content hidden">
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+                        <div class="bg-white rounded-lg shadow-lg p-6 text-center">
+                            <h3 class="text-lg font-semibold text-gray-700 mb-2">Monthly Payroll</h3>
+                            <p class="text-3xl font-bold text-red-600" id="monthly-payroll">KES 0.00</p>
+                        </div>
+                        <div class="bg-white rounded-lg shadow-lg p-6 text-center">
+                            <h3 class="text-lg font-semibold text-gray-700 mb-2">Paid This Month</h3>
+                            <p class="text-3xl font-bold text-green-600" id="paid-this-month">KES 0.00</p>
+                        </div>
+                        <div class="bg-white rounded-lg shadow-lg p-6 text-center">
+                            <h3 class="text-lg font-semibold text-gray-700 mb-2">Pending Payments</h3>
+                            <p class="text-3xl font-bold text-orange-600" id="pending-payments">KES 0.00</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-lg shadow-lg p-6">
+                        <h2 class="text-xl font-semibold mb-4">Payroll Management</h2>
+                        <div class="overflow-x-auto">
+                            <table class="w-full table-auto">
+                                <thead>
+                                    <tr class="bg-gray-50">
+                                        <th class="px-4 py-3 text-left font-medium text-gray-700">Worker</th>
+                                        <th class="px-4 py-3 text-left font-medium text-gray-700">Monthly Salary</th>
+                                        <th class="px-4 py-3 text-left font-medium text-gray-700">Sales Bonus</th>
+                                        <th class="px-4 py-3 text-left font-medium text-gray-700">Total Pay</th>
+                                        <th class="px-4 py-3 text-left font-medium text-gray-700">Status</th>
+                                        <th class="px-4 py-3 text-left font-medium text-gray-700">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="payroll-table">
+                                    <!-- Will be populated -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Inventory Tab (Admin) -->
+                <div id="inventory-content" class="admin-tab-content hidden">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                        <!-- Add New Product -->
+                        <div class="bg-white rounded-lg shadow-lg p-6">
+                            <h2 class="text-xl font-semibold mb-4">Add New Product</h2>
+                            <form onsubmit="addProduct(event)" class="space-y-4">
+                                <input type="text" id="product-name" placeholder="Product Name" required
+                                       class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                <input type="number" id="product-price" placeholder="Selling Price (KES)" step="0.01" required
+                                       class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                <input type="number" id="product-cost" placeholder="Cost Price (KES)" step="0.01" required
+                                       class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                <input type="number" id="product-stock" placeholder="Initial Stock Quantity" required
+                                       class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                <button type="submit" class="w-full bg-blue-500 hover:bg-blue-600 text-white py-3 px-4 rounded-lg font-medium">
+                                    Add Product
+                                </button>
+                            </form>
+                        </div>
+
+                        <!-- Stock Management -->
+                        <div class="bg-white rounded-lg shadow-lg p-6">
+                            <h2 class="text-xl font-semibold mb-4">Update Stock</h2>
+                            <div class="space-y-4">
+                                <select id="stock-product" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                    <option value="">Select Product</option>
+                                </select>
+                                <input type="number" id="stock-quantity" placeholder="Quantity to Add/Remove"
+                                       class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                <div class="flex space-x-2">
+                                    <button onclick="updateStock('add')" class="flex-1 bg-green-500 hover:bg-green-600 text-white py-3 px-4 rounded-lg font-medium">
+                                        ➕ Add Stock
+                                    </button>
+                                    <button onclick="updateStock('remove')" class="flex-1 bg-red-500 hover:bg-red-600 text-white py-3 px-4 rounded-lg font-medium">
+                                        ➖ Remove Stock
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Current Inventory -->
+                    <div class="bg-white rounded-lg shadow-lg p-6">
+                        <h2 class="text-xl font-semibold mb-4">Current Inventory</h2>
+                        <div class="overflow-x-auto">
+                            <table class="w-full table-auto">
+                                <thead>
+                                    <tr class="bg-gray-50">
+                                        <th class="px-4 py-3 text-left font-medium text-gray-700">Product</th>
+                                        <th class="px-4 py-3 text-left font-medium text-gray-700">Stock</th>
+                                        <th class="px-4 py-3 text-left font-medium text-gray-700">Selling Price</th>
+                                        <th class="px-4 py-3 text-left font-medium text-gray-700">Cost Price</th>
+                                        <th class="px-4 py-3 text-left font-medium text-gray-700">Profit Margin</th>
+                                        <th class="px-4 py-3 text-left font-medium text-gray-700">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="admin-inventory-table">
+                                    <!-- Will be populated -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- POS Tab (Admin) -->
+                <div id="pos-content" class="admin-tab-content hidden">
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <!-- Product Selection -->
+                        <div class="lg:col-span-2 bg-white rounded-lg shadow-lg p-6">
+                            <h2 class="text-xl font-semibold mb-4">Select Products</h2>
+                            <div class="mb-4">
+                                <input type="text" id="admin-product-search" placeholder="Search products..." 
+                                       class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                                       oninput="filterAdminProducts()">
+                            </div>
+                            <div id="admin-products-grid" class="grid grid-cols-2 md:grid-cols-3 gap-4 max-h-96 overflow-y-auto">
+                                <!-- Products will be populated here -->
+                            </div>
+                        </div>
+
+                        <!-- Cart & Checkout -->
+                        <div class="bg-white rounded-lg shadow-lg p-6">
+                            <h2 class="text-xl font-semibold mb-4">Shopping Cart</h2>
+                            <div id="admin-cart-items" class="space-y-2 mb-4 max-h-64 overflow-y-auto">
+                                <p class="text-gray-500 text-center py-8">Cart is empty</p>
+                            </div>
+                            
+                            <div class="border-t pt-4">
+                                <div class="flex justify-between text-lg font-semibold mb-4">
+                                    <span>Total:</span>
+                                    <span id="admin-cart-total">KES 0.00</span>
+                                </div>
+                                
+                                <div class="space-y-3">
+                                    <button onclick="processAdminPayment('cash')" class="w-full bg-green-500 hover:bg-green-600 text-white py-3 px-4 rounded-lg font-medium">
+                                        💵 Cash Payment
+                                    </button>
+                                    <button onclick="processAdminPayment('mpesa')" class="w-full bg-green-600 hover:bg-green-700 text-white py-3 px-4 rounded-lg font-medium">
+                                        📱 M-Pesa Payment
+                                    </button>
+                                    <button onclick="clearAdminCart()" class="w-full bg-red-500 hover:bg-red-600 text-white py-3 px-4 rounded-lg font-medium">
+                                        🗑️ Clear Cart
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Worker Dashboard -->
+            <div id="worker-dashboard" class="hidden">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Product Selection -->
+                    <div class="lg:col-span-2 bg-white rounded-lg shadow-lg p-6">
+                        <h2 class="text-xl font-semibold mb-4">Select Products</h2>
+                        <div class="mb-4">
+                            <input type="text" id="worker-product-search" placeholder="Search products..." 
+                                   class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                                   oninput="filterWorkerProducts()">
+                        </div>
+                        <div id="worker-products-grid" class="grid grid-cols-2 md:grid-cols-3 gap-4 max-h-96 overflow-y-auto">
+                            <!-- Products will be populated here -->
+                        </div>
+                    </div>
+
+                    <!-- Cart & Checkout -->
+                    <div class="bg-white rounded-lg shadow-lg p-6">
+                        <h2 class="text-xl font-semibold mb-4">Shopping Cart</h2>
+                        <div id="worker-cart-items" class="space-y-2 mb-4 max-h-64 overflow-y-auto">
+                            <p class="text-gray-500 text-center py-8">Cart is empty</p>
+                        </div>
+                        
+                        <div class="border-t pt-4">
+                            <div class="flex justify-between text-lg font-semibold mb-4">
+                                <span>Total:</span>
+                                <span id="worker-cart-total">KES 0.00</span>
+                            </div>
+                            
+                            <div class="space-y-3">
+                                <button onclick="processWorkerPayment('cash')" class="w-full bg-green-500 hover:bg-green-600 text-white py-3 px-4 rounded-lg font-medium">
+                                    💵 Cash Payment
+                                </button>
+                                <button onclick="processWorkerPayment('mpesa')" class="w-full bg-green-600 hover:bg-green-700 text-white py-3 px-4 rounded-lg font-medium">
+                                    📱 M-Pesa Payment
+                                </button>
+                                <button onclick="clearWorkerCart()" class="w-full bg-red-500 hover:bg-red-600 text-white py-3 px-4 rounded-lg font-medium">
+                                    🗑️ Clear Cart
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Worker Stats -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
+                    <div class="bg-white rounded-lg shadow-lg p-6 text-center">
+                        <h3 class="text-lg font-semibold text-gray-700 mb-2">My Sales Today</h3>
+                        <p class="text-3xl font-bold text-green-600" id="worker-today-sales">KES 0.00</p>
+                    </div>
+                    <div class="bg-white rounded-lg shadow-lg p-6 text-center">
+                        <h3 class="text-lg font-semibold text-gray-700 mb-2">Transactions Today</h3>
+                        <p class="text-3xl font-bold text-blue-600" id="worker-today-transactions">0</p>
+                    </div>
+                    <div class="bg-white rounded-lg shadow-lg p-6 text-center">
+                        <h3 class="text-lg font-semibold text-gray-700 mb-2">Average Sale</h3>
+                        <p class="text-3xl font-bold text-purple-600" id="worker-avg-sale">KES 0.00</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Payment Modal -->
+    <div id="payment-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+            <h3 class="text-xl font-semibold mb-4" id="payment-title">Process Payment</h3>
+            <div id="payment-content">
+                <!-- Payment content will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // System Data with localStorage persistence
+        let currentUser = null;
+        let users = [];
+        let products = [];
+        let transactions = [];
+        let payrollRecords = [];
+        let adminCart = [];
+        let workerCart = [];
+        let currentProductId = 0;
+        let currentUserId = 0;
+
+        // Initialize data from localStorage or set defaults
+        function initializeData() {
+            // Load users
+            const savedUsers = localStorage.getItem('pixelmart_users');
+            if (savedUsers) {
+                users = JSON.parse(savedUsers);
+                currentUserId = Math.max(...users.map(u => u.id), 0);
+                
+                // Hide admin registration link if admin exists
+                const hasAdmin = users.some(u => u.role === 'admin');
+                if (hasAdmin) {
+                    const adminRegLink = document.getElementById('admin-registration-link');
+                    if (adminRegLink) {
+                        adminRegLink.style.display = 'none';
+                    }
+                }
+            }
+
+            // Load products
+            const savedProducts = localStorage.getItem('pixelmart_products');
+            if (savedProducts) {
+                products = JSON.parse(savedProducts);
+                currentProductId = Math.max(...products.map(p => p.id), 0);
+            } else {
+                // Set default products only if none exist
+                products = [
+                    {id: 1, name: "Rice 2kg", price: 180, cost: 150, stock: 50},
+                    {id: 2, name: "Cooking Oil 1L", price: 320, cost: 280, stock: 30},
+                    {id: 3, name: "Sugar 1kg", price: 140, cost: 120, stock: 40},
+                    {id: 4, name: "Bread", price: 60, cost: 45, stock: 25},
+                    {id: 5, name: "Milk 500ml", price: 65, cost: 50, stock: 35},
+                    {id: 6, name: "Eggs (12pcs)", price: 350, cost: 300, stock: 20}
+                ];
+                currentProductId = 6;
+                saveProducts();
+            }
+
+            // Load transactions
+            const savedTransactions = localStorage.getItem('pixelmart_transactions');
+            if (savedTransactions) {
+                transactions = JSON.parse(savedTransactions).map(t => ({
+                    ...t,
+                    timestamp: new Date(t.timestamp)
+                }));
+            }
+
+            // Load payroll records
+            const savedPayroll = localStorage.getItem('pixelmart_payroll');
+            if (savedPayroll) {
+                payrollRecords = JSON.parse(savedPayroll);
+            }
+
+            // Load current user session
+            const savedSession = localStorage.getItem('pixelmart_session');
+            if (savedSession) {
+                const sessionData = JSON.parse(savedSession);
+                const user = users.find(u => u.id === sessionData.userId);
+                if (user) {
+                    currentUser = user;
+                    // Auto-login if session exists
+                    document.getElementById('login-screen').classList.add('hidden');
+                    document.getElementById('main-app').classList.remove('hidden');
+                    document.getElementById('user-info').textContent = `Welcome, ${user.name} (${user.role})`;
+                    
+                    if (user.role === 'admin') {
+                        document.getElementById('admin-dashboard').classList.remove('hidden');
+                        updateAdminDashboard();
+                    } else {
+                        document.getElementById('worker-dashboard').classList.remove('hidden');
+                        updateWorkerDashboard();
+                    }
+                }
+            }
+        }
+
+        // Save functions
+        function saveUsers() {
+            localStorage.setItem('pixelmart_users', JSON.stringify(users));
+        }
+
+        function saveProducts() {
+            localStorage.setItem('pixelmart_products', JSON.stringify(products));
+        }
+
+        function saveTransactions() {
+            localStorage.setItem('pixelmart_transactions', JSON.stringify(transactions));
+        }
+
+        function savePayroll() {
+            localStorage.setItem('pixelmart_payroll', JSON.stringify(payrollRecords));
+        }
+
+        function saveSession() {
+            if (currentUser) {
+                localStorage.setItem('pixelmart_session', JSON.stringify({
+                    userId: currentUser.id,
+                    timestamp: new Date().toISOString()
+                }));
+            } else {
+                localStorage.removeItem('pixelmart_session');
+            }
+        }
+
+        // Initialize data when page loads
+        initializeData();
+
+        // Form switching functions
+        function showAdminRegistration() {
+            document.getElementById('login-form').classList.add('hidden');
+            document.getElementById('admin-registration-form').classList.remove('hidden');
+        }
+
+        function showLogin() {
+            document.getElementById('admin-registration-form').classList.add('hidden');
+            document.getElementById('login-form').classList.remove('hidden');
+        }
+
+        // Admin Registration
+        function registerAdmin(event) {
+            event.preventDefault();
+            
+            const name = document.getElementById('admin-reg-name').value;
+            const email = document.getElementById('admin-reg-email').value;
+            const password = document.getElementById('admin-reg-password').value;
+            const confirmPassword = document.getElementById('admin-reg-confirm').value;
+            const phone = document.getElementById('admin-reg-phone').value;
+            const businessEmail = document.getElementById('admin-business-email').value;
+
+            // Validation
+            if (password !== confirmPassword) {
+                alert('Passwords do not match!');
+                return;
+            }
+
+            if (password.length < 6) {
+                alert('Password must be at least 6 characters long!');
+                return;
+            }
+
+            // Check if email already exists
+            if (users.find(u => u.email === email)) {
+                alert('Email already exists!');
+                return;
+            }
+
+            // Check if any admin already exists
+            const existingAdmin = users.find(u => u.role === 'admin');
+            if (existingAdmin) {
+                // Send confirmation email to existing admin's business email
+                const notificationEmail = existingAdmin.businessEmail || existingAdmin.email;
+                sendAdminConfirmationEmail(notificationEmail, {
+                    name: name,
+                    email: email,
+                    password: password,
+                    phone: phone
+                });
+                
+                alert(`An admin account already exists! A confirmation email has been sent to ${notificationEmail} to approve your registration. Please wait for approval.`);
+                
+                // Clear form and switch to login
+                event.target.reset();
+                showLogin();
+                return;
+            }
+
+            // Create first admin account (no confirmation needed)
+            const newAdmin = {
+                id: ++currentUserId,
+                name: name,
+                email: email,
+                password: password,
+                role: 'admin',
+                phone: phone,
+                salary: 0,
+                businessEmail: businessEmail
+            };
+
+            users.push(newAdmin);
+            saveUsers(); // Save to localStorage
+            
+            // Hide admin registration link
+            document.getElementById('admin-registration-link').style.display = 'none';
+            
+            alert('Admin account created successfully! You can now login.');
+            
+            // Clear form and switch to login
+            event.target.reset();
+            showLogin();
+            
+            // Pre-fill login email
+            document.getElementById('login-email').value = email;
+        }
+
+        // Send confirmation email to existing admin
+        function sendAdminConfirmationEmail(adminEmail, newAdminData) {
+            // In a real application, this would send an actual email
+            // For this demo, we'll simulate the email sending process
+            
+            const emailSubject = "🏪 Pixel Mart - New Admin Registration Request";
+            const emailBody = `
+Dear Admin,
+
+Someone is trying to register as an additional admin for your Pixel Mart system.
+
+Registration Details:
+- Name: ${newAdminData.name}
+- Email: ${newAdminData.email}
+- Phone: ${newAdminData.phone}
+- Registration Time: ${new Date().toLocaleString()}
+
+If you approve this registration, the new admin will have full access to:
+- View all sales and financial data
+- Manage workers and payroll
+- Access inventory management
+- Process transactions
+
+SECURITY NOTICE: Only approve this if you know and trust this person, as they will have complete administrative access to your business system.
+
+To approve or deny this request, please login to your Pixel Mart admin panel.
+
+Best regards,
+Pixel Mart Security Team
+
+---
+This is an automated security notification. If you did not expect this registration attempt, please secure your system immediately.
+            `.trim();
+
+            // Simulate email sending (in real app, use email service like SendGrid, Mailgun, etc.)
+            console.log('📧 EMAIL SENT TO:', adminEmail);
+            console.log('📧 SUBJECT:', emailSubject);
+            console.log('📧 BODY:', emailBody);
+            
+            // Store pending registration for admin approval
+            if (!window.pendingAdminRegistrations) {
+                window.pendingAdminRegistrations = [];
+            }
+            
+            window.pendingAdminRegistrations.push({
+                id: Date.now(),
+                timestamp: new Date(),
+                adminEmail: adminEmail,
+                newAdminData: newAdminData,
+                status: 'pending'
+            });
+            
+            // In a real application, you would:
+            // 1. Use a proper email service (SendGrid, AWS SES, etc.)
+            // 2. Store pending registrations in a database
+            // 3. Create a secure approval link with tokens
+            // 4. Add proper authentication for the approval process
+            
+            // For demo purposes, show the email content
+            showEmailPreview(adminEmail, emailSubject, emailBody);
+        }
+
+        // Show email preview (for demo purposes)
+        function showEmailPreview(to, subject, body) {
+            const modal = document.getElementById('payment-modal');
+            const title = document.getElementById('payment-title');
+            const content = document.getElementById('payment-content');
+            
+            title.textContent = '📧 Email Sent Successfully';
+            content.innerHTML = `
+                <div class="space-y-4">
+                    <div class="bg-green-50 p-4 rounded-lg">
+                        <div class="flex items-center mb-2">
+                            <span class="text-green-600 text-2xl mr-2">✅</span>
+                            <span class="font-semibold text-green-800">Confirmation Email Sent!</span>
+                        </div>
+                        <p class="text-sm text-green-700">
+                            A security confirmation email has been sent to <strong>${to}</strong>
+                        </p>
+                    </div>
+                    
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <h4 class="font-semibold mb-2">📧 Email Preview:</h4>
+                        <div class="text-xs bg-white p-3 rounded border max-h-64 overflow-y-auto">
+                            <p><strong>To:</strong> ${to}</p>
+                            <p><strong>Subject:</strong> ${subject}</p>
+                            <hr class="my-2">
+                            <pre class="whitespace-pre-wrap font-mono text-xs">${body}</pre>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-blue-50 p-4 rounded-lg">
+                        <p class="text-sm text-blue-800">
+                            <strong>Next Steps:</strong><br>
+                            1. The existing admin will receive this email<br>
+                            2. They can approve or deny your registration<br>
+                            3. You'll be notified once a decision is made<br>
+                            4. If approved, you can login with your credentials
+                        </p>
+                    </div>
+                    
+                    <button onclick="closePaymentModal()" class="w-full bg-blue-500 hover:bg-blue-600 text-white py-3 px-4 rounded-lg font-medium">
+                        Got it, thanks!
+                    </button>
+                </div>
+            `;
+            
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        // Authentication
+        function login(event) {
+            event.preventDefault();
+            
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            
+            // Check if no users exist
+            if (users.length === 0) {
+                alert('No accounts found! Please register as admin first.');
+                showAdminRegistration();
+                return;
+            }
+            
+            const user = users.find(u => u.email === email && u.password === password);
+            
+            if (user) {
+                currentUser = user;
+                saveSession(); // Save session to localStorage
+                
+                document.getElementById('login-screen').classList.add('hidden');
+                document.getElementById('main-app').classList.remove('hidden');
+                
+                document.getElementById('user-info').textContent = `Welcome, ${user.name} (${user.role})`;
+                
+                if (user.role === 'admin') {
+                    document.getElementById('admin-dashboard').classList.remove('hidden');
+                    updateAdminDashboard();
+                } else {
+                    document.getElementById('worker-dashboard').classList.remove('hidden');
+                    updateWorkerDashboard();
+                }
+            } else {
+                alert('Invalid credentials!');
+            }
+        }
+
+        function logout() {
+            currentUser = null;
+            saveSession(); // Clear session from localStorage
+            
+            document.getElementById('main-app').classList.add('hidden');
+            document.getElementById('admin-dashboard').classList.add('hidden');
+            document.getElementById('worker-dashboard').classList.add('hidden');
+            document.getElementById('login-screen').classList.remove('hidden');
+            
+            // Clear forms
+            document.getElementById('login-email').value = '';
+            document.getElementById('login-password').value = '';
+        }
+
+        // Admin Tab Management
+        function switchAdminTab(tabName) {
+            document.querySelectorAll('.admin-tab-content').forEach(content => {
+                content.classList.add('hidden');
+            });
+            
+            document.querySelectorAll('[id$="-tab"]').forEach(tab => {
+                tab.classList.remove('bg-blue-500', 'text-white');
+                tab.classList.add('text-gray-600', 'hover:bg-gray-50');
+            });
+            
+            document.getElementById(tabName + '-content').classList.remove('hidden');
+            
+            const activeTab = document.getElementById(tabName + '-tab');
+            activeTab.classList.add('bg-blue-500', 'text-white');
+            activeTab.classList.remove('text-gray-600', 'hover:bg-gray-50');
+
+            // Update content based on tab
+            if (tabName === 'overview') updateAdminOverview();
+            if (tabName === 'sales') updateSalesAnalytics();
+            if (tabName === 'workers') updateWorkersTab();
+            if (tabName === 'payroll') updatePayrollTab();
+            if (tabName === 'inventory') updateAdminInventory();
+            if (tabName === 'pos') updateAdminPOS();
+        }
+
+        // Generate worker ID
+        function generateWorkerID(title) {
+            const workers = users.filter(u => u.role === 'worker');
+            const nextNumber = (workers.length + 1).toString().padStart(3, '0');
+            
+            let titleCode = '';
+            switch(title) {
+                case 'manager': titleCode = 'MNG'; break;
+                case 'worker': titleCode = 'WOK'; break;
+                case 'attendant': titleCode = 'ATT'; break;
+                default: titleCode = 'WOK';
+            }
+            
+            return `PIX/ADM/${titleCode}${nextNumber}`;
+        }
+
+        // Update worker ID when title changes
+        function updateWorkerID() {
+            const title = document.getElementById('worker-title').value;
+            const workerIdField = document.getElementById('worker-id');
+            
+            if (title) {
+                workerIdField.value = generateWorkerID(title);
+            } else {
+                workerIdField.value = '';
+            }
+        }
+
+        // Convert image to base64
+        function convertImageToBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = reject;
+                reader.readAsDataURL(file);
+            });
+        }
+
+        // Send Gmail notification
+        function sendGmailNotification(adminEmail, workerData) {
+            const subject = `🏪 New Worker Registered - ${workerData.name}`;
+            const body = `
+Dear Admin,
+
+A new worker has been successfully registered in your Pixel Mart system:
+
+Worker Details:
+• ID: ${workerData.workerId}
+• Name: ${workerData.name}
+• Title: ${workerData.title.toUpperCase()}
+• Email: ${workerData.email}
+• Phone: ${workerData.phone}
+• Salary: KES ${workerData.salary.toFixed(2)}
+• Registration Date: ${new Date().toLocaleString()}
+
+Login Credentials:
+• Email: ${workerData.email}
+• Password: ${workerData.password}
+
+The worker can now access the POS system using these credentials.
+
+Best regards,
+Pixel Mart System
+            `.trim();
+
+            // Create Gmail compose URL
+            const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(adminEmail)}&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+            
+            // Open Gmail in new tab
+            window.open(gmailUrl, '_blank');
+            
+            console.log('📧 Gmail notification prepared for:', adminEmail);
+        }
+
+        // Worker Management
+        async function registerWorker(event) {
+            event.preventDefault();
+            
+            const name = document.getElementById('worker-name').value;
+            const email = document.getElementById('worker-email').value;
+            const password = document.getElementById('worker-password').value;
+            const phone = document.getElementById('worker-phone').value;
+            const title = document.getElementById('worker-title').value;
+            const salary = parseFloat(document.getElementById('worker-salary').value);
+            const pictureFile = document.getElementById('worker-picture').files[0];
+
+            // Check if email already exists
+            if (users.find(u => u.email === email)) {
+                alert('Email already exists!');
+                return;
+            }
+
+            // Generate worker ID
+            const workerId = generateWorkerID(title);
+
+            // Convert picture to base64 if provided
+            let pictureData = null;
+            if (pictureFile) {
+                try {
+                    pictureData = await convertImageToBase64(pictureFile);
+                } catch (error) {
+                    console.error('Error converting image:', error);
+                }
+            }
+
+            const newWorker = {
+                id: ++currentUserId,
+                workerId: workerId,
+                name: name,
+                email: email,
+                password: password,
+                role: 'worker',
+                title: title,
+                phone: phone,
+                salary: salary,
+                picture: pictureData,
+                registrationDate: new Date().toISOString()
+            };
+
+            users.push(newWorker);
+            saveUsers(); // Save to localStorage
+            
+            // Send Gmail notification to admin
+            const admin = users.find(u => u.role === 'admin');
+            if (admin && admin.email) {
+                sendGmailNotification(admin.email, newWorker);
+            }
+            
+            // Clear form
+            event.target.reset();
+            document.getElementById('worker-id').value = '';
+            
+            updateWorkersTab();
+            alert(`Worker registered successfully!\nWorker ID: ${workerId}\nGmail notification sent to admin.`);
+        }
+
+        function deleteWorker(userId) {
+            if (confirm('Are you sure you want to delete this worker?')) {
+                users = users.filter(u => u.id !== userId);
+                saveUsers(); // Save to localStorage
+                updateWorkersTab();
+            }
+        }
+
+        // Dashboard Updates
+        function updateAdminDashboard() {
+            updateAdminOverview();
+            updateSalesAnalytics();
+            updateWorkersTab();
+            updatePayrollTab();
+            updateAdminInventory();
+            updateAdminPOS();
+        }
+
+        function updateAdminOverview() {
+            const today = new Date().toDateString();
+            const todayTransactions = transactions.filter(t => t.timestamp.toDateString() === today);
+            
+            const todaySales = todayTransactions.reduce((sum, t) => sum + t.total, 0);
+            const todayProfit = todayTransactions.reduce((sum, t) => sum + t.profit, 0);
+            const activeWorkers = users.filter(u => u.role === 'worker').length;
+            
+            document.getElementById('admin-today-sales').textContent = `KES ${todaySales.toFixed(2)}`;
+            document.getElementById('admin-today-profit').textContent = `KES ${todayProfit.toFixed(2)}`;
+            document.getElementById('active-workers').textContent = activeWorkers;
+            document.getElementById('total-products').textContent = products.length;
+
+            // Top performers
+            const workerSales = {};
+            todayTransactions.forEach(t => {
+                if (!workerSales[t.workerId]) {
+                    workerSales[t.workerId] = { sales: 0, profit: 0, transactions: 0 };
+                }
+                workerSales[t.workerId].sales += t.total;
+                workerSales[t.workerId].profit += t.profit;
+                workerSales[t.workerId].transactions++;
+            });
+
+            const topPerformers = Object.entries(workerSales)
+                .map(([workerId, stats]) => {
+                    const worker = users.find(u => u.id == workerId);
+                    return { worker: worker?.name || 'Unknown', ...stats };
+                })
+                .sort((a, b) => b.sales - a.sales)
+                .slice(0, 5);
+
+            document.getElementById('top-performers').innerHTML = topPerformers.length > 0 
+                ? topPerformers.map(p => `
+                    <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                        <span class="font-medium">${p.worker}</span>
+                        <span class="text-green-600 font-semibold">KES ${p.sales.toFixed(2)}</span>
+                    </div>
+                `).join('')
+                : '<p class="text-gray-500 text-center py-4">No sales today</p>';
+
+            // Low stock alerts
+            const lowStock = products.filter(p => p.stock <= 10);
+            document.getElementById('low-stock-alerts').innerHTML = lowStock.length > 0
+                ? lowStock.map(p => `
+                    <div class="flex justify-between items-center p-3 bg-red-50 rounded-lg">
+                        <span class="font-medium">${p.name}</span>
+                        <span class="text-red-600 font-semibold">${p.stock} left</span>
+                    </div>
+                `).join('')
+                : '<p class="text-gray-500 text-center py-4">All products well stocked</p>';
+        }
+
+        function updateSalesAnalytics() {
+            const today = new Date().toDateString();
+            const todayTransactions = transactions.filter(t => t.timestamp.toDateString() === today);
+            
+            const workerStats = {};
+            
+            // Initialize stats for all workers
+            users.filter(u => u.role === 'worker').forEach(worker => {
+                workerStats[worker.id] = {
+                    name: worker.name,
+                    sales: 0,
+                    profit: 0,
+                    transactions: 0
+                };
+            });
+
+            // Calculate stats from transactions
+            todayTransactions.forEach(t => {
+                if (workerStats[t.workerId]) {
+                    workerStats[t.workerId].sales += t.total;
+                    workerStats[t.workerId].profit += t.profit;
+                    workerStats[t.workerId].transactions++;
+                }
+            });
+
+            document.getElementById('worker-sales-table').innerHTML = Object.values(workerStats).map(stats => `
+                <tr class="border-b hover:bg-gray-50">
+                    <td class="px-4 py-3 font-medium">${stats.name}</td>
+                    <td class="px-4 py-3 text-green-600 font-semibold">KES ${stats.sales.toFixed(2)}</td>
+                    <td class="px-4 py-3 text-blue-600 font-semibold">KES ${stats.profit.toFixed(2)}</td>
+                    <td class="px-4 py-3">${stats.transactions}</td>
+                    <td class="px-4 py-3">KES ${stats.transactions > 0 ? (stats.sales / stats.transactions).toFixed(2) : '0.00'}</td>
+                </tr>
+            `).join('');
+
+            // Recent transactions
+            document.getElementById('admin-transactions-table').innerHTML = transactions.slice(-10).reverse().map(t => {
+                const worker = users.find(u => u.id === t.workerId);
+                return `
+                    <tr class="border-b hover:bg-gray-50">
+                        <td class="px-4 py-3">${t.timestamp.toLocaleString()}</td>
+                        <td class="px-4 py-3">${worker?.name || 'Unknown'}</td>
+                        <td class="px-4 py-3">${t.items.length} items</td>
+                        <td class="px-4 py-3 font-semibold">KES ${t.total.toFixed(2)}</td>
+                        <td class="px-4 py-3">${t.paymentMethod}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function updateWorkersTab() {
+            const workers = users.filter(u => u.role === 'worker');
+            const totalPayroll = workers.reduce((sum, w) => sum + w.salary, 0);
+            
+            document.getElementById('total-workers').textContent = workers.length;
+            document.getElementById('total-payroll').textContent = `KES ${totalPayroll.toFixed(2)}`;
+            
+            // Workers active today
+            const today = new Date().toDateString();
+            const activeToday = new Set(transactions.filter(t => t.timestamp.toDateString() === today).map(t => t.workerId));
+            document.getElementById('workers-active-today').textContent = activeToday.size;
+
+            document.getElementById('workers-table').innerHTML = workers.map(worker => {
+                const titleDisplay = worker.title ? worker.title.charAt(0).toUpperCase() + worker.title.slice(1) : 'Worker';
+                const profilePicture = worker.picture || 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMjAiIGZpbGw9IiNFNUU3RUIiLz4KPGNpcmNsZSBjeD0iMjAiIGN5PSIxNiIgcj0iNiIgZmlsbD0iIzlDQTNBRiIvPgo8cGF0aCBkPSJNMzIgMzJDMzIgMjYuNDc3MiAyNy41MjI4IDIyIDIyIDIySDEyQzYuNDc3MTUgMjIgMiAyNi40NzcyIDIgMzJWMzJIMzJWMzJaIiBmaWxsPSIjOUNBM0FGIi8+Cjwvc3ZnPgo=';
+                
+                return `
+                    <tr class="border-b hover:bg-gray-50">
+                        <td class="px-4 py-3">
+                            <img src="${profilePicture}" alt="${worker.name}" 
+                                 class="w-10 h-10 rounded-full object-cover border-2 border-gray-200">
+                        </td>
+                        <td class="px-4 py-3 font-mono text-sm">${worker.workerId || 'N/A'}</td>
+                        <td class="px-4 py-3 font-medium">${worker.name}</td>
+                        <td class="px-4 py-3">
+                            <span class="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800">
+                                ${titleDisplay}
+                            </span>
+                        </td>
+                        <td class="px-4 py-3 text-sm">${worker.email}</td>
+                        <td class="px-4 py-3 text-sm">${worker.phone}</td>
+                        <td class="px-4 py-3 font-semibold">KES ${worker.salary.toFixed(2)}</td>
+                        <td class="px-4 py-3">
+                            <span class="px-2 py-1 text-xs rounded-full ${activeToday.has(worker.id) ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}">
+                                ${activeToday.has(worker.id) ? 'Active' : 'Inactive'}
+                            </span>
+                        </td>
+                        <td class="px-4 py-3">
+                            <button onclick="deleteWorker(${worker.id})" class="text-red-500 hover:text-red-700 text-sm">
+                                🗑️ Delete
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function updatePayrollTab() {
+            const workers = users.filter(u => u.role === 'worker');
+            const currentMonth = new Date().getMonth();
+            const currentYear = new Date().getFullYear();
+            
+            let monthlyPayroll = 0;
+            let paidThisMonth = 0;
+            let pendingPayments = 0;
+
+            document.getElementById('payroll-table').innerHTML = workers.map(worker => {
+                // Calculate sales bonus (5% of monthly sales)
+                const monthlySales = transactions
+                    .filter(t => t.workerId === worker.id && 
+                             t.timestamp.getMonth() === currentMonth && 
+                             t.timestamp.getFullYear() === currentYear)
+                    .reduce((sum, t) => sum + t.total, 0);
+                
+                const salesBonus = monthlySales * 0.05;
+                const totalPay = worker.salary + salesBonus;
+                
+                monthlyPayroll += totalPay;
+                
+                // Check if paid this month (simplified - in real app would track actual payments)
+                const isPaid = Math.random() > 0.5; // Random for demo
+                if (isPaid) {
+                    paidThisMonth += totalPay;
+                } else {
+                    pendingPayments += totalPay;
+                }
+
+                return `
+                    <tr class="border-b hover:bg-gray-50">
+                        <td class="px-4 py-3 font-medium">${worker.name}</td>
+                        <td class="px-4 py-3">KES ${worker.salary.toFixed(2)}</td>
+                        <td class="px-4 py-3 text-green-600">KES ${salesBonus.toFixed(2)}</td>
+                        <td class="px-4 py-3 font-semibold">KES ${totalPay.toFixed(2)}</td>
+                        <td class="px-4 py-3">
+                            <span class="px-2 py-1 text-xs rounded-full ${isPaid ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">
+                                ${isPaid ? 'Paid' : 'Pending'}
+                            </span>
+                        </td>
+                        <td class="px-4 py-3">
+                            <button onclick="processPayroll(${worker.id})" class="text-blue-500 hover:text-blue-700 text-sm">
+                                ${isPaid ? '✓ Paid' : '💳 Pay Now'}
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+
+            document.getElementById('monthly-payroll').textContent = `KES ${monthlyPayroll.toFixed(2)}`;
+            document.getElementById('paid-this-month').textContent = `KES ${paidThisMonth.toFixed(2)}`;
+            document.getElementById('pending-payments').textContent = `KES ${pendingPayments.toFixed(2)}`;
+        }
+
+        function processPayroll(workerId) {
+            const worker = users.find(u => u.id === workerId);
+            if (worker) {
+                alert(`Payroll processed for ${worker.name}`);
+                updatePayrollTab();
+            }
+        }
+
+        function updateWorkerDashboard() {
+            updateWorkerPOS();
+            updateWorkerStats();
+        }
+
+        function updateWorkerStats() {
+            const today = new Date().toDateString();
+            const myTransactions = transactions.filter(t => 
+                t.workerId === currentUser.id && 
+                t.timestamp.toDateString() === today
+            );
+            
+            const todaySales = myTransactions.reduce((sum, t) => sum + t.total, 0);
+            const todayTransactions = myTransactions.length;
+            const avgSale = todayTransactions > 0 ? todaySales / todayTransactions : 0;
+            
+            document.getElementById('worker-today-sales').textContent = `KES ${todaySales.toFixed(2)}`;
+            document.getElementById('worker-today-transactions').textContent = todayTransactions;
+            document.getElementById('worker-avg-sale').textContent = `KES ${avgSale.toFixed(2)}`;
+        }
+
+        // Product Management
+        function addProduct(event) {
+            event.preventDefault();
+            
+            const name = document.getElementById('product-name').value;
+            const price = parseFloat(document.getElementById('product-price').value);
+            const cost = parseFloat(document.getElementById('product-cost').value);
+            const stock = parseInt(document.getElementById('product-stock').value);
+
+            if (price <= cost) {
+                alert('Selling price must be higher than cost price!');
+                return;
+            }
+
+            products.push({
+                id: ++currentProductId,
+                name: name,
+                price: price,
+                cost: cost,
+                stock: stock
+            });
+
+            saveProducts(); // Save to localStorage
+            event.target.reset();
+            updateAdminInventory();
+            updateAdminPOS();
+            updateWorkerPOS();
+            alert('Product added successfully!');
+        }
+
+        function updateStock(action) {
+            const productId = parseInt(document.getElementById('stock-product').value);
+            const quantity = parseInt(document.getElementById('stock-quantity').value);
+            
+            if (!productId || !quantity) {
+                alert('Please select a product and enter quantity!');
+                return;
+            }
+
+            const product = products.find(p => p.id === productId);
+            if (!product) return;
+
+            if (action === 'add') {
+                product.stock += quantity;
+            } else if (action === 'remove') {
+                if (product.stock >= quantity) {
+                    product.stock -= quantity;
+                } else {
+                    alert('Insufficient stock to remove!');
+                    return;
+                }
+            }
+
+            saveProducts(); // Save to localStorage
+            document.getElementById('stock-quantity').value = '';
+            updateAdminInventory();
+            updateAdminPOS();
+            updateWorkerPOS();
+            alert(`Stock updated successfully! New stock: ${product.stock}`);
+        }
+
+        function deleteProduct(productId) {
+            if (confirm('Are you sure you want to delete this product?')) {
+                products = products.filter(p => p.id !== productId);
+                saveProducts(); // Save to localStorage
+                updateAdminInventory();
+                updateAdminPOS();
+                updateWorkerPOS();
+            }
+        }
+
+        function updateAdminInventory() {
+            // Update stock select
+            const select = document.getElementById('stock-product');
+            select.innerHTML = '<option value="">Select Product</option>' + 
+                products.map(product => `
+                    <option value="${product.id}">${product.name} (Stock: ${product.stock})</option>
+                `).join('');
+
+            // Update inventory table
+            document.getElementById('admin-inventory-table').innerHTML = products.map(product => {
+                const profitMargin = ((product.price - product.cost) / product.cost * 100).toFixed(1);
+                const stockStatus = product.stock <= 5 ? 'text-red-600 font-medium' : product.stock <= 10 ? 'text-yellow-600' : 'text-green-600';
+                
+                return `
+                    <tr class="border-b hover:bg-gray-50">
+                        <td class="px-4 py-3">${product.name}</td>
+                        <td class="px-4 py-3 ${stockStatus}">${product.stock}</td>
+                        <td class="px-4 py-3">KES ${product.price.toFixed(2)}</td>
+                        <td class="px-4 py-3">KES ${product.cost.toFixed(2)}</td>
+                        <td class="px-4 py-3 text-green-600 font-medium">${profitMargin}%</td>
+                        <td class="px-4 py-3">
+                            <button onclick="deleteProduct(${product.id})" class="text-red-500 hover:text-red-700 text-sm">
+                                🗑️ Delete
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // POS Functions
+        function updateAdminPOS() {
+            renderProducts('admin');
+            renderCart('admin');
+        }
+
+        function updateWorkerPOS() {
+            renderProducts('worker');
+            renderCart('worker');
+        }
+
+        function renderProducts(userType) {
+            const grid = document.getElementById(`${userType}-products-grid`);
+            grid.innerHTML = products.map(product => `
+                <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer ${product.stock === 0 ? 'opacity-50' : ''}"
+                     onclick="${product.stock > 0 ? `addToCart(${product.id}, '${userType}')` : ''}">
+                    <h3 class="font-medium text-gray-800 mb-2">${product.name}</h3>
+                    <p class="text-lg font-semibold text-green-600 mb-1">KES ${product.price.toFixed(2)}</p>
+                    <p class="text-sm text-gray-500">Stock: ${product.stock}</p>
+                    ${product.stock === 0 ? '<p class="text-red-500 text-sm font-medium">Out of Stock</p>' : ''}
+                </div>
+            `).join('');
+        }
+
+        function filterAdminProducts() {
+            filterProducts('admin');
+        }
+
+        function filterWorkerProducts() {
+            filterProducts('worker');
+        }
+
+        function filterProducts(userType) {
+            const search = document.getElementById(`${userType}-product-search`).value.toLowerCase();
+            const filtered = products.filter(product => 
+                product.name.toLowerCase().includes(search)
+            );
+            
+            const grid = document.getElementById(`${userType}-products-grid`);
+            grid.innerHTML = filtered.map(product => `
+                <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer ${product.stock === 0 ? 'opacity-50' : ''}"
+                     onclick="${product.stock > 0 ? `addToCart(${product.id}, '${userType}')` : ''}">
+                    <h3 class="font-medium text-gray-800 mb-2">${product.name}</h3>
+                    <p class="text-lg font-semibold text-green-600 mb-1">KES ${product.price.toFixed(2)}</p>
+                    <p class="text-sm text-gray-500">Stock: ${product.stock}</p>
+                    ${product.stock === 0 ? '<p class="text-red-500 text-sm font-medium">Out of Stock</p>' : ''}
+                </div>
+            `).join('');
+        }
+
+        function addToCart(productId, userType) {
+            const product = products.find(p => p.id === productId);
+            if (!product || product.stock === 0) return;
+
+            const cart = userType === 'admin' ? adminCart : workerCart;
+            const existingItem = cart.find(item => item.id === productId);
+            
+            if (existingItem) {
+                if (existingItem.quantity < product.stock) {
+                    existingItem.quantity++;
+                }
+            } else {
+                cart.push({
+                    id: productId,
+                    name: product.name,
+                    price: product.price,
+                    cost: product.cost,
+                    quantity: 1
+                });
+            }
+            
+            renderCart(userType);
+        }
+
+        function removeFromCart(productId, userType) {
+            const cart = userType === 'admin' ? adminCart : workerCart;
+            const itemIndex = cart.findIndex(item => item.id === productId);
+            
+            if (itemIndex > -1) {
+                if (cart[itemIndex].quantity > 1) {
+                    cart[itemIndex].quantity--;
+                } else {
+                    cart.splice(itemIndex, 1);
+                }
+            }
+            
+            renderCart(userType);
+        }
+
+        function renderCart(userType) {
+            const cart = userType === 'admin' ? adminCart : workerCart;
+            const cartContainer = document.getElementById(`${userType}-cart-items`);
+            
+            if (cart.length === 0) {
+                cartContainer.innerHTML = '<p class="text-gray-500 text-center py-8">Cart is empty</p>';
+                document.getElementById(`${userType}-cart-total`).textContent = 'KES 0.00';
+                return;
+            }
+
+            cartContainer.innerHTML = cart.map(item => `
+                <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                    <div class="flex-1">
+                        <h4 class="font-medium text-sm">${item.name}</h4>
+                        <p class="text-sm text-gray-600">KES ${item.price.toFixed(2)} x ${item.quantity}</p>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <button onclick="removeFromCart(${item.id}, '${userType}')" class="text-red-500 hover:text-red-700 text-sm">➖</button>
+                        <span class="font-medium">${item.quantity}</span>
+                        <button onclick="addToCart(${item.id}, '${userType}')" class="text-green-500 hover:text-green-700 text-sm">➕</button>
+                    </div>
+                </div>
+            `).join('');
+
+            const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            document.getElementById(`${userType}-cart-total`).textContent = `KES ${total.toFixed(2)}`;
+        }
+
+        function clearAdminCart() {
+            adminCart = [];
+            renderCart('admin');
+        }
+
+        function clearWorkerCart() {
+            workerCart = [];
+            renderCart('worker');
+        }
+
+        function processAdminPayment(method) {
+            processPayment(method, 'admin');
+        }
+
+        function processWorkerPayment(method) {
+            processPayment(method, 'worker');
+        }
+
+        function processPayment(method, userType) {
+            const cart = userType === 'admin' ? adminCart : workerCart;
+            
+            if (cart.length === 0) {
+                alert('Cart is empty!');
+                return;
+            }
+
+            const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            const modal = document.getElementById('payment-modal');
+            const title = document.getElementById('payment-title');
+            const content = document.getElementById('payment-content');
+
+            if (method === 'cash') {
+                title.textContent = 'Cash Payment';
+                content.innerHTML = `
+                    <div class="space-y-4">
+                        <p class="text-lg">Total: <span class="font-bold">KES ${total.toFixed(2)}</span></p>
+                        <input type="number" id="cash-received" placeholder="Cash Received" step="0.01" 
+                               class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        <p id="change-amount" class="text-lg font-medium"></p>
+                        <div class="flex space-x-3">
+                            <button onclick="completeCashPayment('${userType}')" class="flex-1 bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded-lg">
+                                Complete Sale
+                            </button>
+                            <button onclick="closePaymentModal()" class="flex-1 bg-gray-500 hover:bg-gray-600 text-white py-2 px-4 rounded-lg">
+                                Cancel
+                            </button>
+                        </div>
+                    </div>
+                `;
+                
+                document.getElementById('cash-received').addEventListener('input', function() {
+                    const received = parseFloat(this.value) || 0;
+                    const change = received - total;
+                    const changeElement = document.getElementById('change-amount');
+                    if (received >= total) {
+                        changeElement.textContent = `Change: KES ${change.toFixed(2)}`;
+                        changeElement.className = 'text-lg font-medium text-green-600';
+                    } else {
+                        changeElement.textContent = `Insufficient amount`;
+                        changeElement.className = 'text-lg font-medium text-red-600';
+                    }
+                });
+            } else if (method === 'mpesa') {
+                title.textContent = 'M-Pesa Payment';
+                content.innerHTML = `
+                    <div class="space-y-4">
+                        <p class="text-lg">Total: <span class="font-bold">KES ${total.toFixed(2)}</span></p>
+                        <input type="tel" id="mpesa-phone" placeholder="Customer Phone (254XXXXXXXXX)" 
+                               class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        
+                        <div class="flex space-x-3">
+                            <button onclick="sendSTKPush('${userType}')" class="flex-1 bg-green-600 hover:bg-green-700 text-white py-3 px-4 rounded-lg font-medium">
+                                📱 Send STK Push
+                            </button>
+                            <button onclick="showManualPayment('${userType}')" class="flex-1 bg-blue-500 hover:bg-blue-600 text-white py-3 px-4 rounded-lg font-medium">
+                                💳 Manual Payment
+                            </button>
+                        </div>
+                        
+                        <div id="stk-status" class="hidden">
+                            <div class="bg-blue-50 p-4 rounded-lg text-center">
+                                <div class="animate-spin inline-block w-6 h-6 border-2 border-blue-600 border-t-transparent rounded-full mb-2"></div>
+                                <p class="text-blue-800 font-medium">STK Push sent to customer's phone</p>
+                                <p class="text-sm text-blue-600">Waiting for customer to enter PIN...</p>
+                                <button onclick="checkPaymentStatus('${userType}')" class="mt-3 bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg text-sm">
+                                    Check Status
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div id="manual-payment" class="hidden space-y-4">
+                            <div class="bg-green-50 p-4 rounded-lg">
+                                <p class="text-sm text-green-800">
+                                    📱 <strong>Manual M-Pesa Instructions:</strong><br>
+                                    1. Customer dials *334#<br>
+                                    2. Select "Pay Bill"<br>
+                                    3. Enter Business Number: 4661796<br>
+                                    4. Enter Amount: KES ${total.toFixed(2)}<br>
+                                    5. Enter PIN and confirm
+                                </p>
+                            </div>
+                            <input type="text" id="mpesa-code" placeholder="M-Pesa Transaction Code" 
+                                   class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                            <button onclick="completeMpesaPayment('${userType}')" class="w-full bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded-lg">
+                                Confirm Payment
+                            </button>
+                        </div>
+                        
+                        <button onclick="closePaymentModal()" class="w-full bg-gray-500 hover:bg-gray-600 text-white py-2 px-4 rounded-lg">
+                            Cancel
+                        </button>
+                    </div>
+                `;
+            }
+
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        // Payment completion functions
+        let stkPushInterval;
+        let paymentCheckCount = 0;
+
+        function completeCashPayment(userType) {
+            const cart = userType === 'admin' ? adminCart : workerCart;
+            const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            const received = parseFloat(document.getElementById('cash-received').value) || 0;
+            
+            if (received < total) {
+                alert('Insufficient cash received!');
+                return;
+            }
+
+            completeTransaction('Cash', {}, userType);
+        }
+
+        function sendSTKPush(userType) {
+            const phone = document.getElementById('mpesa-phone').value;
+            
+            if (!phone || phone.length < 12) {
+                alert('Please enter a valid phone number (254XXXXXXXXX)!');
+                return;
+            }
+
+            document.querySelector('.flex.space-x-3').style.display = 'none';
+            document.getElementById('stk-status').classList.remove('hidden');
+            
+            setTimeout(() => {
+                paymentCheckCount = 0;
+                stkPushInterval = setInterval(() => checkPaymentStatus(userType), 3000);
+            }, 1000);
+        }
+
+        function checkPaymentStatus(userType) {
+            paymentCheckCount++;
+            
+            if (paymentCheckCount >= 3) {
+                clearInterval(stkPushInterval);
+                
+                const phone = document.getElementById('mpesa-phone').value;
+                const mockTransactionCode = 'STK' + Date.now().toString().slice(-8);
+                
+                document.getElementById('stk-status').innerHTML = `
+                    <div class="bg-green-50 p-4 rounded-lg text-center">
+                        <div class="text-green-600 text-4xl mb-2">✅</div>
+                        <p class="text-green-800 font-medium">Payment Successful!</p>
+                        <p class="text-sm text-green-600">Transaction Code: ${mockTransactionCode}</p>
+                        <button onclick="completeSTKTransaction('${mockTransactionCode}', '${userType}')" class="mt-3 bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded-lg">
+                            Complete Sale
+                        </button>
+                    </div>
+                `;
+            } else {
+                const statusDiv = document.getElementById('stk-status');
+                const messages = [
+                    'STK Push sent to customer\'s phone...',
+                    'Customer received payment prompt...',
+                    'Waiting for PIN entry...'
+                ];
+                statusDiv.querySelector('p.text-blue-600').textContent = messages[paymentCheckCount - 1] || 'Processing payment...';
+            }
+        }
+
+        function completeSTKTransaction(transactionCode, userType) {
+            const phone = document.getElementById('mpesa-phone').value;
+            completeTransaction('M-Pesa (STK Push)', { phone, code: transactionCode }, userType);
+        }
+
+        function showManualPayment(userType) {
+            document.querySelector('.flex.space-x-3').style.display = 'none';
+            document.getElementById('manual-payment').classList.remove('hidden');
+        }
+
+        function completeMpesaPayment(userType) {
+            const phone = document.getElementById('mpesa-phone').value;
+            const code = document.getElementById('mpesa-code').value;
+            
+            if (!phone || !code) {
+                alert('Please enter phone number and M-Pesa code!');
+                return;
+            }
+
+            completeTransaction('M-Pesa (Manual)', { phone, code }, userType);
+        }
+
+        function completeTransaction(paymentMethod, paymentDetails, userType) {
+            const cart = userType === 'admin' ? adminCart : workerCart;
+            const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            const profit = cart.reduce((sum, item) => sum + ((item.price - item.cost) * item.quantity), 0);
+            
+            // Update stock
+            cart.forEach(item => {
+                const product = products.find(p => p.id === item.id);
+                if (product) {
+                    product.stock -= item.quantity;
+                }
+            });
+
+            // Record transaction
+            transactions.push({
+                id: Date.now(),
+                timestamp: new Date(),
+                items: [...cart],
+                total: total,
+                profit: profit,
+                paymentMethod: paymentMethod,
+                paymentDetails: paymentDetails,
+                workerId: currentUser.id
+            });
+
+            // Save to localStorage
+            saveProducts();
+            saveTransactions();
+
+            // Generate receipt
+            generateReceipt(cart, total, paymentMethod);
+
+            // Clear cart and update displays
+            if (userType === 'admin') {
+                adminCart = [];
+            } else {
+                workerCart = [];
+            }
+            
+            renderCart(userType);
+            renderProducts(userType);
+            
+            if (currentUser.role === 'admin') {
+                updateAdminDashboard();
+            } else {
+                updateWorkerStats();
+            }
+            
+            closePaymentModal();
+
+            alert(`Transaction completed successfully!\nTotal: KES ${total.toFixed(2)}\nProfit: KES ${profit.toFixed(2)}`);
+        }
+
+        function generateReceipt(items, total, paymentMethod) {
+            const receiptWindow = window.open('', '_blank');
+            
+            receiptWindow.document.write(`
+                <html>
+                <head>
+                    <title>Receipt</title>
+                    <style>
+                        body { font-family: 'Courier New', monospace; font-size: 12px; margin: 20px; }
+                        .center { text-align: center; }
+                        .line { border-bottom: 1px dashed #000; margin: 10px 0; }
+                        table { width: 100%; }
+                        .right { text-align: right; }
+                    </style>
+                </head>
+                <body>
+                    <div class="center">
+                        <h2>🏪 PIXEL MART</h2>
+                        <p>Receipt #${Date.now()}</p>
+                        <p>${new Date().toLocaleString()}</p>
+                        <p>Served by: ${currentUser.name}</p>
+                    </div>
+                    <div class="line"></div>
+                    <table>
+                        ${items.map(item => `
+                            <tr>
+                                <td>${item.name}</td>
+                                <td class="right">${item.quantity} x ${item.price.toFixed(2)}</td>
+                                <td class="right">${(item.quantity * item.price).toFixed(2)}</td>
+                            </tr>
+                        `).join('')}
+                    </table>
+                    <div class="line"></div>
+                    <table>
+                        <tr><td><strong>TOTAL:</strong></td><td class="right"><strong>KES ${total.toFixed(2)}</strong></td></tr>
+                        <tr><td>Payment Method:</td><td class="right">${paymentMethod}</td></tr>
+                    </table>
+                    <div class="line"></div>
+                    <div class="center">
+                        <p>Thank you for shopping with us!</p>
+                        <p>Come again soon! 😊</p>
+                    </div>
+                </body>
+                </html>
+            `);
+            receiptWindow.document.close();
+            receiptWindow.print();
+        }
+
+        function closePaymentModal() {
+            if (stkPushInterval) {
+                clearInterval(stkPushInterval);
+                stkPushInterval = null;
+            }
+            paymentCheckCount = 0;
+            
+            document.getElementById('payment-modal').classList.add('hidden');
+            document.getElementById('payment-modal').classList.remove('flex');
+        }
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'97415ec5c5e24eb6',t:'MTc1NjAyMjk5NS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
